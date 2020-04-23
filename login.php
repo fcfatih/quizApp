@@ -156,8 +156,8 @@ require_once("config_normal.php");
                         password:  vm.password
                     })
                     .then(function (response) {
-                        vm.message = response.data;
-                        if(vm.message.message === "Logged"){
+                        vm.message = response.data.message;
+                        if(vm.message === "Logged"){
                             window.location.replace("sinavlar.php");
                         }
                     })

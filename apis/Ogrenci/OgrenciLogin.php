@@ -13,10 +13,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         echo json_encode(array("err_message" => "Eksik yada yanlış bilgi girişi"), JSON_UNESCAPED_UNICODE);
         exit();
     }
-    require_once("../Config/config.php");
-    require_once("../Config/DataBase.php");
+    
     require_once("../Tools/validation.php");
     require_once("Ogrenci.php");
+    require_once("../Config/DataBase.php");
+    require_once("../Config/config.php");
+    
     
     $database = new Database();
     $db = $database->getConnection();
@@ -54,9 +56,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         print_r($e);
         exit();
     }
-    
-    
-    
+
 }
 else{
     echo json_encode(array("err_message" => "Erişim yetkiniz yok"), JSON_UNESCAPED_UNICODE);

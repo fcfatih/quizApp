@@ -1,8 +1,8 @@
 <?php
+require_once("apis/Ogrenci/Ogrenci.php");
 require_once("config_require_login.php");
-
-
 ?>
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -19,7 +19,40 @@ require_once("config_require_login.php");
 
 
     <div class="container" id="app">
-        <h1>Sinavlar</h1>
+        <div class="row">
+            <div class="col-md-12">
+                <input type="text" v-model="search" placeholder=" Arama yap">
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-md-12 table-responsive p-0">
+                <table class="table table-hover p-0" style="font-size: 14px">
+                    <thead>
+                        <tr>
+                            <th>Sınav Adı</th>
+                            <th>Sınıf</th>
+                            <th>Baslangıç</th>
+                            <th>Bitiş</th>
+                            <th>Sınav İşlemleri</th>
+                        </tr>
+                    </thead>
+                    <tbody v-for="item in filteredItems">
+                        <tr>
+                            <td>{{ item.SINAVADI }}</td>
+                            <td>{{ item.SINIFSEVIYESI }}</td>
+                            <td>{{ item.BASLANGICTARIHI}}</td>
+                            <td>{{ item.BITISTARIHI}}</td>
+                            <td>
+                                <button v-on:click="sinaviBaslat(item)" class="btn btn-light btn-sm m-1">Başlat</button>
+                                <button v-on:click="sinavSonucu(item)" class="btn btn-light btn-sm m-1">Sonuç</button>
+                                <button v-on:click="sinavYonergesi(item)" class="btn btn-light btn-sm m-1">Yönerge</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
         
     </div>
     
@@ -48,18 +81,65 @@ require_once("config_require_login.php");
             el: '#app',
             data: {
                 message: "mesajim burada",
+                sinavlar: [],
+                search: ''
             },
 
             computed:{
-                
+                filteredItems: function(){
+                    return this.sinavlar.filter(item => {
+                        if (item.SINAVADI.toLowerCase().match(this.search.toLowerCase())){
+                            return item;
+                        }
+                        if(item.SINIFSEVIYESI.toLowerCase().match(this.search.toLowerCase())){
+                            return item;
+                        }
+                    });
+                }
             },
 
             methods: {
+                sinaviBaslat: function(item){
+                    if(item.DURUM === "0"){
+                        alert("Sınav Hazirlanma aşamasında.");
+                    }else if(item.DURUM === "1"){
+                        alert("Sınav aktif değil.");
+                    }else if(item.DURUM === "2"){
+                        alert("sinavi baslat");
+                        //item.ID session a kaydet ve quiz_app.php uygulamasina gec.
+                        axios.post("apis/Sinav/SinavSecimi.php",{
+                            sinavID: item.ID
+                        }).then(function (response){
+                            window.location.replace("quiz_app.php");
+                        }).catch(function (error){
+                           console.log(error); 
+                        });
+                        
+                    }else if(item.DURUM === "3"){
+                        alert("Sınav süresi bitmiştir.");
+                    }else if(item.DURUM === "4"){
+                        alert("Sınav süresi tamamlandı. Sonuçlarınıza bakabilirsiniz.");
+                    }
+                },
+                sinavSonucu: function(item){
+                    alert(item.BASLANGICTARIHI);
+                },
+                sinavYonergesi: function(item){
+                    alert(item.ACIKLAMA);
+                }
                 
             },
             
             created: function(){
-                
+                var vm = this;
+                axios.get("apis/Sinav/SinavList.php")
+                        .then(function (response) {
+                            vm.sinavlar = response.data;
+                        })
+                        .catch(function (error){
+                           window.location.replace("index.php");
+                           alert(error);
+                        });
             },
             beforeDestroy () {
                 //son durumu sunucuya ilet.
