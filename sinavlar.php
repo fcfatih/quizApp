@@ -105,12 +105,15 @@ require_once("config_require_login.php");
                     }else if(item.DURUM === "1"){
                         alert("Sınav aktif değil.");
                     }else if(item.DURUM === "2"){
-                        alert("sinavi baslat");
+                        alert("Sınav baslatiliyor..");
+                        
                         //item.ID session a kaydet ve quiz_app.php uygulamasina gec.
                         axios.post("apis/Sinav/SinavSecimi.php",{
                             sinavID: item.ID
                         }).then(function (response){
-                            window.location.replace("quiz_app.php");
+                            if(response.data.message === "DONE"){
+                                window.location.replace("quiz_app.php");
+                            }
                         }).catch(function (error){
                            console.log(error); 
                         });

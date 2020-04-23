@@ -10,14 +10,14 @@ class Sinav{
     public $SINAVSURESI;
     
     public function __construct(
-        $ID, 
-        $SINAVADI, 
-        $ACIKLAMA, 
-        $BASLANGICTARIHI, 
-        $BITISTARIHI, 
-        $SINIFSEVIYESI,
-        $DURUM,
-        $SINAVSURESI){
+        $ID = null, 
+        $SINAVADI = null, 
+        $ACIKLAMA = null, 
+        $BASLANGICTARIHI = null, 
+        $BITISTARIHI = null, 
+        $SINIFSEVIYESI = null,
+        $DURUM = null,
+        $SINAVSURESI = null){
         
         $this->ID = $ID;
         $this->SINAVADI = $SINAVADI;
