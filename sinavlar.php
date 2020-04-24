@@ -111,8 +111,12 @@ require_once("config_require_login.php");
                         axios.post("apis/Sinav/SinavSecimi.php",{
                             sinavID: item.ID
                         }).then(function (response){
-                            if(response.data.message === "DONE"){
+                            alert(response.data.message);
+                            if(response.data.message === "START" || response.data.message === "RECONNECT"){
                                 window.location.replace("quiz_app.php");
+                            }
+                            else{
+                                alert("Sınavı tamamladınız.");
                             }
                         }).catch(function (error){
                            console.log(error); 

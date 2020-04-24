@@ -41,6 +41,30 @@ class Sinav{
             "SINAVSURESI" => $this->SINAVSURESI
         );
     }
+    
+    //mevcut id bilgisi girilen sinavi okur ve bilgileri nesneye atar.
+    public function readOne($db){
+        $sorgu = "SELECT * FROM SINAVLAR WHERE ID = :id";
+        $stmt = $db->prepare($sorgu);
+        $stmt->bindParam(":id", $this->ID);
+        try{
+            $stmt->execute();
+            $num = $stmt->rowCount();
+            if($num > 0 ){
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                extract($row);
+                $this->SINAVADI = $SINAVADI;
+                $this->ACIKLAMA = $ACIKLAMA;
+                $this->BASLANGICTARIHI = $BASLANGICTARIHI;
+                $this->BITISTARIHI = $BITISTARIHI;
+                $this->SINIFSEVIYESI = $SINIFSEVIYESI;
+                $this->DURUM = $DURUM;
+                $this->SINAVSURESI = $SINAVSURESI;
+            }
+        } catch (Exception $e){
+            
+        }
+    }
 }
 /*
   sinav durumlari

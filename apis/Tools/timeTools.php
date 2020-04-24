@@ -1,6 +1,4 @@
 <?php
-require_once("../Config/config.php");
-
 //hangi fonksiyonlara ihtiyacim var?
 /*
    1- simdiki zaman
@@ -23,51 +21,36 @@ function simdi(){
     return $dt;
 }
 
-//ibirnci datetime nesnesine ikinci datetime nesnesinin sa-dakika-saniyesini ekler. 
+//ibirnci datetime nesnesine ikinci datetime nesnesinin saat-dakika-saniyesini ekler. 
 function ekleTime($t1, $t2){
+    $t3 = clone $t1;
     $saat = $t2->format("H");
     $dakika = $t2->format("i");
     $saniye = $t2->format("s");
     $ekleme = "PT".$saat."H".$dakika."M".$saniye."S";
-    $t1->add(new DateInterval($ekleme));
-    return $t1;
+    $t3->add(new DateInterval($ekleme));
+    return $t3;
 }
 
-function fark($t1, $t2){
-    $interval = $t1->diff($t2);
-    return new DateTime($interval->format("P %Y-%m-%d %H:%i:%s"));
+//datetime obj olarak verilen iki tarih arasindaki zaman farkini saniye cinsinden verir.
+function farkBul($birinci,$ikinci){
+    $fark=strtotime($birinci->format("H:i:s")) - strtotime($ikinci->format("H:i:s"));
+    return $fark;
 }
 
-//verilen sureden simdiki saati cikarip
-//DateTime olarak dondurur
-function kalanSure($t){
-    return fark($t, new DateTime());
-}
-
-//verilen sureden simdiki saati cikarip
-//kalan sureyi array("hour" => ..) sekline bir dizi olarak dondurur
-function kalanSureSDS($t){
-    $sonuc = kalanSure($t);
-    $saat = $sonuc->format("H");
-    $dakika = $sonuc->format("i");
-    $saniye = $sonuc->format("s");
-    return array("hour" => $saat, "minutes" => $dakika, "seconds" => $saniye);
+function farkBulSDS($birinci,$ikinci){
+    $fark=strtotime($birinci->format("H:i:s")) - strtotime($ikinci->format("H:i:s"));
+    $seconds = $fark ;
+    $minutes = round($fark / 60 );
+    $hours = round($fark / 3600 );
+    if($fark < 0){
+        
+    }
+    return array("signal" => "");
 }
 
 function test(){
-    //simdi();
     
-    ////echo("<br>");
-    //ekleTime(new DateTime(), new DateTime("03:10:40"));
-    
-    ////$datetime1 = new DateTime('2020-1-1 06:05:10'); 
-    //$datetime2 = new DateTime('2020-1-1 06:02:10'); 
-    //$sonuc = fark($datetime1, $datetime2);
-    //echo($sonuc->format("Y-m-d H:i:s"));
-    
-    $sonuc = kalanSureSDS(new DateTime("2020-4-24 02:00:00"));
-    print_r($sonuc);
 }
 
-test();
 ?>
