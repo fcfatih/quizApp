@@ -13,11 +13,11 @@ if(isset($_SESSION["userOgrenci"])){
     $db = $database->getConnection();
     $ogr = $_SESSION["userOgrenci"];
     
-    $durum = 2; //yayinda olan sınavlar 2
-    
-    $sorgu = "SELECT * FROM SINAVLAR WHERE DURUM = :durum AND SINIFSEVIYESI = :seviye";
+    //$durum = 2; //yayinda olan sınavlar 2
+    //$sorgu = "SELECT * FROM SINAVLAR WHERE DURUM = :durum AND SINIFSEVIYESI = :seviye";
+    $sorgu = "SELECT * FROM SINAVLAR WHERE DURUM IN (2,4) AND SINIFSEVIYESI = :seviye";
     $stmt = $db->prepare($sorgu);
-    $stmt->bindParam(":durum", $durum); 
+    //$stmt->bindParam(":durum", $durum); 
     $stmt->bindParam(":seviye", $ogr->SINIFSEVIYESI);
     
     try{

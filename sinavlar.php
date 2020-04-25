@@ -46,7 +46,6 @@ require_once("config_require_login.php");
                             <td>
                                 <button v-on:click="sinaviBaslat(item)" class="btn btn-light btn-sm m-1">Başlat</button>
                                 <button v-on:click="sinavSonucu(item)" class="btn btn-light btn-sm m-1">Sonuç</button>
-                                <button v-on:click="sinavYonergesi(item)" class="btn btn-light btn-sm m-1">Yönerge</button>
                             </td>
                         </tr>
                     </tbody>
@@ -105,17 +104,17 @@ require_once("config_require_login.php");
                     }else if(item.DURUM === "1"){
                         alert("Sınav aktif değil.");
                     }else if(item.DURUM === "2"){
-                        alert("Sınav baslatiliyor..");
+                        //alert("Sınav baslatiliyor..");
                         axios.post("apis/Sinav/SinavSecimi.php",{
                             sinavID: item.ID
                         }).then(function (response){
-                            alert(response.data.message);
+                            //alert(response.data.message);
                             if(response.data.message === "START" || response.data.message === "RECONNECT"){
+                                alert(item.ACIKLAMA)
                                 window.location.replace("quiz_app.php");
                             }
                             else if(response.data.message === "RUN_OUT_OF_TIME"){
                                 alert("Sınav süreniz bitmiştir.");
-                                //sinav bitir.php cagir.
                             }
                             else if(response.data.message === "FINISED"){
                                 alert("Sınavı tamamladınız. Tekrar giriş yapamazsınız.");

@@ -54,14 +54,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 //suresi bitmemis ise 
                 //sinav suresi bitmis mi?
                 if(farkBul($_SESSION["ogrenciSinavBitisZamani"], new DateTime()) < 0){
-                    //sinavi bitir dememis peki yeterli suresi varsa
+                    //yeterli suresi yoksa
                     $ogrenciSinavSure->SINAVIBITIRME = new DateTime();
                     $ogrenciSinavSure->update($db);
                     http_response_code(200);
                     echo json_encode(array("message" => "RUN_OUT_OF_TIME"), JSON_UNESCAPED_UNICODE);
                 }
                 else{
-                    //yeterli süresi yoksa
+                    //yeterli süresi varsa
                     http_response_code(200);
                     echo json_encode(array("message" => "RECONNECT"), JSON_UNESCAPED_UNICODE);
                 }                
