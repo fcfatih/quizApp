@@ -29,8 +29,8 @@ class OgrenciSinavSure{
     function readOne($db){
         $sorgu = "SELECT * FROM OGRENCISINAVSURE WHERE SINAVID = :sinavID AND OGRENCIID = :ogrID";
         $stmt = $db->prepare($sorgu);
-        $stmt->bindParam(":sinavID", $this->OGRENCIID);
-        $stmt->bindParam(":ogrID", $this->SINAVID);
+        $stmt->bindParam(":sinavID", $this->SINAVID);
+        $stmt->bindParam(":ogrID", $this->OGRENCIID);
         try{
             $stmt->execute();
             $num = $stmt->rowCount();

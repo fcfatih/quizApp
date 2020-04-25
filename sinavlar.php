@@ -106,8 +106,6 @@ require_once("config_require_login.php");
                         alert("Sınav aktif değil.");
                     }else if(item.DURUM === "2"){
                         alert("Sınav baslatiliyor..");
-                        
-                        //item.ID session a kaydet ve quiz_app.php uygulamasina gec.
                         axios.post("apis/Sinav/SinavSecimi.php",{
                             sinavID: item.ID
                         }).then(function (response){
@@ -115,8 +113,15 @@ require_once("config_require_login.php");
                             if(response.data.message === "START" || response.data.message === "RECONNECT"){
                                 window.location.replace("quiz_app.php");
                             }
+                            else if(response.data.message === "RUN_OUT_OF_TIME"){
+                                alert("Sınav süreniz bitmiştir.");
+                                //sinav bitir.php cagir.
+                            }
+                            else if(response.data.message === "FINISED"){
+                                alert("Sınavı tamamladınız. Tekrar giriş yapamazsınız.");
+                            }
                             else{
-                                alert("Sınavı tamamladınız.");
+                                alert("Sınavı tamamladınız. Tekrar giriş yapamazsınız.");
                             }
                         }).catch(function (error){
                            console.log(error); 

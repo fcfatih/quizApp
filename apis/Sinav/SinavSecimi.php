@@ -26,56 +26,51 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         $db = $database->getConnection();
         
         $ogrenci = $_SESSION["userOgrenci"];
-        //eger islemler basarisizlikla sonuclanirsa sinav ve sivansure nesneleri sessiona atanmaz-silinir
+        
         $sinav = new Sinav($data->sinavID);
-        $ogrenciSinavSure = new OgrenciSinavSure();
-
         $sinav->readOne($db);
+        $_SESSION["sinav"] = $sinav;
+        
+        $ogrenciSinavSure = new OgrenciSinavSure();
         $ogrenciSinavSure->OGRENCIID = $ogrenci->ID;
         $ogrenciSinavSure->SINAVID = $sinav->ID;
-        
+        //DELETE FROM OGRENCISINAVSURE WHERE OGRENCIID = 8427
         
         if(!$ogrenciSinavSure->recordExist($db)){
-            //ogrenci ilk kez sinva griiyor.
+            //ogrenci ilk kez sinava griiyor.
             $ogrenciSinavSure->create($db);
             $bitirmeZamani = ekleTime($ogrenciSinavSure->SINAVABASLAMA, new DateTime($sinav->SINAVSURESI));
             $_SESSION["ogrenciSinavSure"] = $ogrenciSinavSure;
             $_SESSION["ogrenciSinavBitisZamani"] = $bitirmeZamani;
-            $_SESSION["sinav"] = $sinav;
             http_response_code(200);
             echo json_encode(array("message" => "START"), JSON_UNESCAPED_UNICODE);
         }
         else{
             //baglanti kopmus olabilir.
             //bitirme zamani kaydi var mi?
+            $ogrenciSinavSure->readOne($db);
             if($ogrenciSinavSure->SINAVIBITIRME === null){
                 //bitir dememis
                 //suresi bitmemis ise 
-                $ogrenciSinavSure = $_SESSION["ogrenciSinavSure"];
                 //sinav suresi bitmis mi?
                 if(farkBul($_SESSION["ogrenciSinavBitisZamani"], new DateTime()) < 0){
+                    //sinavi bitir dememis peki yeterli suresi varsa
                     $ogrenciSinavSure->SINAVIBITIRME = new DateTime();
                     $ogrenciSinavSure->update($db);
                     http_response_code(200);
-                    echo json_encode(array("message" => "FINISED"), JSON_UNESCAPED_UNICODE);
+                    echo json_encode(array("message" => "RUN_OUT_OF_TIME"), JSON_UNESCAPED_UNICODE);
                 }
                 else{
+                    //yeterli süresi yoksa
                     http_response_code(200);
                     echo json_encode(array("message" => "RECONNECT"), JSON_UNESCAPED_UNICODE);
-                }
-                
+                }                
             }
             else{
                 http_response_code(200);
                 echo json_encode(array("message" => "FINISED"), JSON_UNESCAPED_UNICODE);
             }
-            
-            
         }
-
-        
-        
-        
     } catch (Exception $e){
         //echo json_encode(array("err_message" => "Hata"), JSON_UNESCAPED_UNICODE);
         print_r($e);
