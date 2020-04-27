@@ -74,14 +74,17 @@ require_once("apis/Sinav/Sinav.php");
         
         <hr>
         <div class="row text-center">
-            <div class="col-md-4"></div>
+            <div class="col-md-2"></div>
             <div class="col-md-2">
                 <button type="button" class="btn btn-primary btn-sm">Önceki</button>
+            </div>
+            <div class="col-md-4">
+                <button type="button" class="btn btn-primary btn-sm">Kaydet</button>
             </div>
             <div class="col-md-2">
                 <button type="button" class="btn btn-primary btn-sm">Sonraki</button>
             </div>
-            <div class="col-md-4"></div>
+            <div class="col-md-2"></div>
         </div>
         
         <hr>
