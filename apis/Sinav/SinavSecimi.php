@@ -81,11 +81,4 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     exit();
 }
 
-
-
-//http_response_code(200);
-//echo json_encode(array("message" => "DONE"), JSON_UNESCAPED_UNICODE);
-//echo json_encode(array("err_message" => "Eksik yada yanlış bilgi girişi"), JSON_UNESCAPED_UNICODE);
-//echo json_encode(array("err_message" => "Hata"), JSON_UNESCAPED_UNICODE);
-//exit();
 ?>

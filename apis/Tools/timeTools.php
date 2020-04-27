@@ -38,19 +38,28 @@ function farkBul($birinci,$ikinci){
     return $fark;
 }
 
-function farkBulSDS($birinci,$ikinci){
-    $fark=strtotime($birinci->format("H:i:s")) - strtotime($ikinci->format("H:i:s"));
-    $seconds = $fark ;
-    $minutes = round($fark / 60 );
-    $hours = round($fark / 3600 );
-    if($fark < 0){
-        
+//verilen zamandan simdiki zamani cikarir. sonucuc saat dakika saniye cinsinden verir.
+//eger zaman gecmiste kalms ise 0 0 0 dondurur.
+function sinavKalanSureSDS($bitis){
+    $simdi = new DateTime();
+    if(farkBul($bitis, $simdi) < 0){
+        $result = array('hours' => 0, 'minutes' => 0, 'seconds' => 0);
+        echo(json_encode($result, JSON_UNESCAPED_UNICODE));
     }
-    return array("signal" => "");
-}
-
-function test(){
+    else{
+        $fark = $bitis->diff($simdi);
+        $h = $fark->format("%h");
+        $m = $fark->format("%i");
+        $s = $fark->format("%s");
+        $result = array('hours' => $h, 'minutes' => $m, 'seconds' => $s);
+        echo(json_encode($result, JSON_UNESCAPED_UNICODE));
+    }
     
 }
 
+function test(){
+    sinavKalanSureSDS(new DateTime("2020-04-26 17:55:00"));
+}
+
+//test();
 ?>
