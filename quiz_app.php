@@ -171,7 +171,7 @@ require_once("config_require_login.php");
                     axios.get('apis/Sinav/SinavBitir.php')
                     .then(function (response) {
                         if(response.data.message == "FINISHED"){
-                            window.location.replace("");
+                            window.location.replace("/");
                         }
                     })
                     .catch(function (error) {
