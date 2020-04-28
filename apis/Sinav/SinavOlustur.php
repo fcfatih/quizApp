@@ -53,13 +53,19 @@ function sinaviOlustur($db, $sinav){
             array_push($result[$key]["sorular"], $soruitem);
         }
     }
-    //iyi de bu varsa zaten bunu dondur..
-    if(!isset($_SESSION["aktifSinav"])){
-        $_SESSION["aktifSinav"] = $result;
-    }
+    
+    $_SESSION["aktifSinav"] = $result;
     echo(json_encode($result, JSON_UNESCAPED_UNICODE));
+
+    
 }
 
-sinaviOlustur($db, $sinav);
+//sinav hafizada bir kez olusturulur.
+if(!isset($_SESSION["aktifSinav"])){
+    sinaviOlustur($db, $sinav);
+}
+else{
+    echo(json_encode($_SESSION["aktifSinav"], JSON_UNESCAPED_UNICODE));
+}
 
 ?>

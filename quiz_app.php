@@ -77,7 +77,7 @@ require_once("apis/Sinav/Sinav.php");
                 <button type="button" class="btn btn-primary btn-sm">Önceki</button>
             </div>
             <div class="col-md-4">
-                <button type="button" class="btn btn-primary btn-sm">Kaydet</button>
+                <button type="button" v-on:click="cevapKaydet" class="btn btn-primary btn-sm">Kaydet</button>
             </div>
             <div class="col-md-2">
                 <button type="button" class="btn btn-primary btn-sm">Sonraki</button>
@@ -89,6 +89,7 @@ require_once("apis/Sinav/Sinav.php");
         <div class="row text-center">
             <div class="col-sm-12">
                 <button type="button" v-on:click="sinaviBitir" class="btn btn-danger btn-sm">Sınavı Bitir</button>
+                <p>{{message}}</p>
             </div>
         </div>
         
@@ -134,7 +135,7 @@ require_once("apis/Sinav/Sinav.php");
         var app = new Vue({
             el: '#app',
             data: {
-                message: "mesajim burada",
+                message: "",
                 sinav: [],
                 seciliDers: 0,
                 aktifSoru: {soruImg: new Image(), soruID: "", kullaniciCevabi: null, sitil: ""},
@@ -196,8 +197,34 @@ require_once("apis/Sinav/Sinav.php");
                         }
                     });
                 },
-                kaydet: function(){
-                   alert(this.aktifSoru.soruID);
+                cevapKaydet: function(){
+                    //alert(this.aktifSoru.soruID);
+                    //alert(this.seciliDers.dersID);
+                    //alert(this.aktifSoru.kullaniciCevabi);
+                    
+                    if(this.aktifSoru.kullaniciCevabi === "" || this.aktifSoru.kullaniciCevabi === null){
+                        return;
+                    }
+
+                    var vm = this;
+                    vm.message = "";
+                    axios.post('apis/Sinav/SinavCevapKaydet.php', {
+                        dersID: vm.seciliDers.dersID,
+                        soruID: vm.aktifSoru.soruID,
+                        kullaniciCevabi: vm.aktifSoru.kullaniciCevabi 
+                    })
+                    .then(function (response) {
+                        console.log(response.data);
+                        vm.message = "Cevap Kaydedildi";
+                    })
+                    .catch(function (error) {
+                        //window.location.replace("/");
+                        alert(error);
+                    });
+                    
+                    //kullanici arayuzu icin.    
+                    this.seciliDers.sorular[this.seciliDers.sonAktifSoruIndex].kullaniciCevabi = this.aktifSoru.kullaniciCevabi;
+                    //alert(this.aktifSoru.kullaniciCevabi);
                 },
                 degistir: function(){
                     this.seciliDers.sorular[3].sitil = "btn btn-primary btn-sm";
