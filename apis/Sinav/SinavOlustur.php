@@ -33,13 +33,23 @@ function sinaviOlustur($db, $sinav){
         $sorgu = "SELECT ID, SORUIMGURL FROM SORULARIMG WHERE SINAVID = ".$sinav->ID." AND DERSID = ".$result[$key]["dersID"];
         $stmt =  $db->prepare($sorgu);
         $stmt->execute();
+        $i = 1;
         while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
             extract($row);
+            if($i == 1){
+                $sitil = "btn btn-primary btn-sm";
+            }
+            else{
+                $sitil = "btn btn-secondary btn-sm";
+            }
             $soruitem = array(
                 "soruID" => $ID,
                 "soruIMG" => $SORUIMGURL,
-                "kullaniciCevabi" => ""
+                "kullaniciCevabi" => "",
+                "sitil" => $sitil,
+                "index" => $i 
             );
+            $i = $i + 1;
             array_push($result[$key]["sorular"], $soruitem);
         }
     }

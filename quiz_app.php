@@ -53,9 +53,7 @@ require_once("apis/Sinav/Sinav.php");
             <!-- ----------------------------Quiz question section---------------------------- -->
         <div class="row text-center">
             <div class="col-md-12">
-                
-                    <img src="soruIMG/s1fen2.jpg"></img>
-                
+                <img v-bind:src="aktifSoru.soruImg.src"></img>
             </div>
         </div>
         <!-- ----------------------------Quiz question section END------------------------ -->
@@ -64,11 +62,11 @@ require_once("apis/Sinav/Sinav.php");
         <div class="row">
             <div class="col-md-12 text-center">
                 <h6>Cevabınız: </h6>
-                <button type="button" class="btn btn-outline-primary btn-md">A</button>
-                <button type="button" class="btn btn-outline-primary btn-md">B</button>
-                <button type="button" class="btn btn-primary btn-md">C</button>
-                <button type="button" class="btn btn-outline-primary btn-md">D</button>
-                <button type="button" class="btn btn-outline-primary btn-md">E</button>
+                <button type="button" v-on:click="cevapla(cevapButtons[0])" v-bind:class="cevapButtons[0].sitil">A</button>
+                <button type="button" v-on:click="cevapla(cevapButtons[1])" v-bind:class="cevapButtons[1].sitil">B</button>
+                <button type="button" v-on:click="cevapla(cevapButtons[2])" v-bind:class="cevapButtons[2].sitil">C</button>
+                <button type="button" v-on:click="cevapla(cevapButtons[3])" v-bind:class="cevapButtons[3].sitil">D</button>
+                <button type="button" v-on:click="cevapla(cevapButtons[4])" v-bind:class="cevapButtons[4].sitil">E</button>
             </div>
         </div>
         
@@ -90,14 +88,14 @@ require_once("apis/Sinav/Sinav.php");
         <hr>
         <div class="row text-center">
             <div class="col-sm-12">
-                <button type="button" class="btn btn-danger btn-sm">Sınavı Bitir</button>
+                <button type="button" v-on:click="sinaviBitir" class="btn btn-danger btn-sm">Sınavı Bitir</button>
             </div>
         </div>
         
         <div class="row">
             <h6>Derse ait sorular:</h6>
             <div class="col-sm-12">
-                <button v-for="item in sorular" v-bind:class="classObject(item)">
+                <button v-for="item in seciliDers.sorular" v-bind:class="item.sitil">
                         {{ item.index }}
                 </button>
             </div>
@@ -137,25 +135,18 @@ require_once("apis/Sinav/Sinav.php");
             el: '#app',
             data: {
                 message: "mesajim burada",
-                sinav: [
-                    {dersAdi : "Türkçe"},
-                    {dersAdi : "Matematik"},
-                    {dersAdi : "Fen Bilgisi"},
-                    {dersAdi : "Sosyal Bilgiler"}
-                ],
-                seciliDers: "",
-                hours: "01",
-                minutes: "02",
-                seconds: "03",
-                sorular: [
-                    {index: 1, sitil: "btn btn-success btn-sm"},
-                    {index: 2, sitil: "btn btn-success btn-sm"},
-                    {index: 3, sitil: "btn btn-secondary btn-sm"},
-                    {index: 4, sitil: "btn btn-success btn-sm"},
-                    {index: 5, sitil: "btn btn-secondary btn-sm"},
-                    {index: 6, sitil: "btn btn-success btn-sm"},
-                    {index: 7, sitil: "btn btn-success btn-sm"},
-                    {index: 8, sitil: "btn btn-primary btn-sm"}
+                sinav: [],
+                seciliDers: 0,
+                aktifSoru: {soruImg: new Image(), soruID: "", kullaniciCevabi: null, sitil: ""},
+                hours: 0,
+                minutes: 0,
+                seconds: 0,
+                cevapButtons: [
+                    {sitil: "btn btn-outline-primary btn-md", cevap: "A"},
+                    {sitil: "btn btn-outline-primary btn-md", cevap: "B"},
+                    {sitil: "btn btn-outline-primary btn-md", cevap: "C"},
+                    {sitil: "btn btn-outline-primary btn-md", cevap: "D"},
+                    {sitil: "btn btn-outline-primary btn-md", cevap: "E"}
                 ]
             },
 
@@ -164,24 +155,93 @@ require_once("apis/Sinav/Sinav.php");
             },
 
             methods: {
-               classObject: function(item){
-                   return item.sitil;
+                saatiBaslat: function(){
+                    this.saat.setSeconds(this.saat.getSeconds() - 1);
+
+                    this.hours = this.saat.getHours();
+                    this.minutes = this.saat.getMinutes();
+                    this.seconds = this.saat.getSeconds();
+
+                    if(this.hours === 0 && this.minutes === 0 && this.seconds === 0){
+                        alert("Sınav süreniz bitmiştir.");
+                        this.sinaviBitir();
+                    }
+                },
+                sinaviBitir: function(){
+                    axios.get('apis/Sinav/SinavBitir.php')
+                    .then(function (response) {
+                        if(response.data.message == "FINISHED"){
+                            window.location.replace("/");
+                        }
+                    })
+                    .catch(function (error) {
+                        //window.location.replace("/giris");
+                        alert(error);
+                    });
+                    
+                },
+                cevapla: function(item){
+                    if(item.sitil === "btn btn-outline-primary btn-md"){
+                        item.sitil = "btn btn-primary btn-md";
+                        this.aktifSoru.kullaniciCevabi = item.cevap;
+                    }
+                    else{
+                        item.sitil = "btn btn-outline-primary btn-md";
+                        this.aktifSoru.kullaniciCevabi = null;
+                    }
+                    
+                    this.cevapButtons.forEach(function(loop_item){
+                        if(loop_item.cevap !== item.cevap){
+                            loop_item.sitil = "btn btn-outline-primary btn-md";
+                        }
+                    });
+                },
+                kaydet: function(){
+                   alert(this.aktifSoru.soruID);
                 },
                 degistir: function(){
-                    this.sorular[1].sitil = "btn btn-secondary btn-sm";
+                    this.seciliDers.sorular[3].sitil = "btn btn-primary btn-sm";
                 },
                 eventDersSecimi: function(event){
-                    alert(this.seciliDers.dersAdi);
+                    this.aktifSoru.soruID = this.seciliDers.sorular[this.seciliDers.sonAktifSoruIndex].soruID;
+                    this.aktifSoru.soruImg.src = this.seciliDers.sorular[this.seciliDers.sonAktifSoruIndex].soruIMG;
+                    this.aktifSoru.kullaniciCevabi = this.seciliDers.sorular[this.seciliDers.sonAktifSoruIndex].kullaniciCevabi;
+                    this.aktifSoru.sitil = this.seciliDers.sorular[this.seciliDers.sonAktifSoruIndex].sitil;
                 }
             },
             
             created: function(){
-                //sorulari cek
-                //then
-                //sinav kalan sureyi cek
-                //then
-                //sinavin ilk dersinin ilk sorusunu hazirla
-                this.seciliDers = this.sinav[0];
+                var vm = this;
+                
+                axios.get('apis/Sinav/SinavOlustur.php')
+                .then(function (response) {
+                    vm.sinav = response.data;
+                    axios.get('apis/Sinav/getSinavKalanSure.php')
+                    .then(function (response) {
+                        vm.saat = new Date();
+                        vm.hours = response.data.hours;
+                        vm.minutes = response.data.minutes;
+                        vm.seconds = response.data.seconds;
+                        vm.saat.setHours(vm.hours);
+                        vm.saat.setMinutes(vm.minutes);
+                        vm.saat.setSeconds(vm.seconds);
+                    })
+                    .catch(function (error) {
+                        //window.location.replace("/giris");
+                        alert(error);
+                    });
+                    //kullaniciyi ilk ders ilk soru karsilar
+                    vm.seciliDers = vm.sinav[0];
+                    vm.aktifSoru.soruID = vm.seciliDers.sorular[vm.seciliDers.sonAktifSoruIndex].soruID;
+                    vm.aktifSoru.soruImg.src = vm.seciliDers.sorular[vm.seciliDers.sonAktifSoruIndex].soruIMG;
+                    vm.aktifSoru.kullaniciCevabi = vm.seciliDers.sorular[vm.seciliDers.sonAktifSoruIndex].kullaniciCevabi;
+                    vm.aktifSoru.sitil = vm.seciliDers.sorular[vm.seciliDers.sonAktifSoruIndex].sitil;
+                })
+                .catch(function (error) {
+                    //window.location.replace("/giris");
+                    alert(error);
+                });
+                
             },
             beforeDestroy () {
                 //son durumu sunucuya ilet.
@@ -192,7 +252,8 @@ require_once("apis/Sinav/Sinav.php");
 	    },
         });
         
-
+        var zamanlayici = setInterval(app.saatiBaslat, 1000);
+        
     </script>
     <noscript>
         Tarayıcınız javascript desteklemiyor. 
