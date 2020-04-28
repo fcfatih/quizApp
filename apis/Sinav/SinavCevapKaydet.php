@@ -33,66 +33,74 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     $soruID =               $data->soruID;
     $kullaniciCevabi =      $data->kullaniciCevabi;
     
-    
     //cevap varsa guncelle. yoksa yeni kayit olustur
     $sorgu = "SELECT * FROM OGRENCISINAVSORUCEVAPLARI ".
         "WHERE OGRENCIID = :userID AND SORUID = :soruID ";
+    $stmt = $db->prepare($sorgu);
+    $stmt->bindParam(":userID", $ogrenci->ID);
+    $stmt->bindParam(":soruID", $soruID);
+    try{
+        $stmt->execute();
+    }catch(Exception $e){
+        //print_r($e);
+    }
+    $num = $stmt->rowCount();
+    if($num > 0){
+        //guncelle
+        $sorgu = "UPDATE OGRENCISINAVSORUCEVAPLARI SET " . 
+        "SINAVID = :sinavID, ".
+        "DERSID = :dersID, ".
+        "OGRENCICEVABI = :kullaniciCevabi WHERE OGRENCIID = :userID AND SORUID = :soruID ";
         $stmt = $db->prepare($sorgu);
         $stmt->bindParam(":userID", $ogrenci->ID);
+        $stmt->bindParam(":sinavID", $sinav->ID);
+        $stmt->bindParam(":dersID", $dersID);
         $stmt->bindParam(":soruID", $soruID);
+        $stmt->bindParam(":kullaniciCevabi", $kullaniciCevabi);
         try{
             $stmt->execute();
         }catch(Exception $e){
             //print_r($e);
         }
-        $num = $stmt->rowCount();
-        if($num > 0){
-            //guncelle
-            $sorgu = "UPDATE OGRENCISINAVSORUCEVAPLARI SET " . 
-            "SINAVID = :sinavID, ".
-            "DERSID = :dersID, ".
-            "OGRENCICEVABI = :kullaniciCevabi WHERE OGRENCIID = :userID AND SORUID = :soruID ";
-            $stmt = $db->prepare($sorgu);
-            $stmt->bindParam(":userID", $ogrenci->ID);
-            $stmt->bindParam(":sinavID", $sinav->ID);
-            $stmt->bindParam(":dersID", $dersID);
-            $stmt->bindParam(":soruID", $soruID);
-            $stmt->bindParam(":kullaniciCevabi", $kullaniciCevabi);
-            try{
-                if($stmt->execute()){
-                    return true;
-                }
-                return false;
-            }catch(Exception $e){
-                //print_r($e);
-            }
-        }    
-        else{
-            //ekle
-            $sorgu = "INSERT INTO OGRENCISINAVSORUCEVAPLARI SET " . 
-            "OGRENCIID = :userID, ".
-            "SINAVID = :sinavID, ".
-            "DERSID = :dersID, ".
-            "SORUID = :soruID, ".
-            "OGRENCICEVABI = :kullaniciCevabi";
-            
-            $stmt = $db->prepare($sorgu);
+    }    
+    else{
+        //ekle
+        $sorgu = "INSERT INTO OGRENCISINAVSORUCEVAPLARI SET " . 
+        "OGRENCIID = :userID, ".
+        "SINAVID = :sinavID, ".
+        "DERSID = :dersID, ".
+        "SORUID = :soruID, ".
+        "OGRENCICEVABI = :kullaniciCevabi";
 
-            $stmt->bindParam(":userID", $ogrenci->ID);
-            $stmt->bindParam(":sinavID", $sinav->ID);
-            $stmt->bindParam(":dersID", $dersID);
-            $stmt->bindParam(":soruID", $soruID);
-            $stmt->bindParam(":kullaniciCevabi", $kullaniciCevabi);
+        $stmt = $db->prepare($sorgu);
 
-            try{
-                if($stmt->execute()){
-                    return true;
+        $stmt->bindParam(":userID", $ogrenci->ID);
+        $stmt->bindParam(":sinavID", $sinav->ID);
+        $stmt->bindParam(":dersID", $dersID);
+        $stmt->bindParam(":soruID", $soruID);
+        $stmt->bindParam(":kullaniciCevabi", $kullaniciCevabi);
+
+        try{
+            $stmt->execute();
+        }catch(Exception $e){
+            //print_r($e);
+        }
+    }
+    
+    //session da da bilgi isleniyor
+    $a = $_SESSION["aktifSinav"];
+    for($i = 0; $i < count($a); $i++){
+        if($a[$i]["dersID"] == $dersID){
+            for($j = 0; $j < count($a[$i]["sorular"]); $j++){
+                if($a[$i]["sorular"][$j]["soruID"] == $soruID){
+                    $a[$i]["sorular"][$j]["kc"] = $kullaniciCevabi;
                 }
-                return false;
-            }catch(Exception $e){
-                //print_r($e);
             }
         }
+    }
+        
+        
+        
     
     http_response_code(200);
     echo json_encode(array("message" => "DONE"), JSON_UNESCAPED_UNICODE);

@@ -5,7 +5,7 @@ require_once("apis/Ogrenci/Ogrenci.php");
 require_once("apis/Ogrenci/OgrenciSinavSure.php");
 require_once("apis/Sinav/Sinav.php");
 
-//require_once("config_require_login.php");
+require_once("config_require_login.php");
 
 //echo("<pre>");
 //var_dump($_SESSION);
@@ -74,13 +74,13 @@ require_once("apis/Sinav/Sinav.php");
         <div class="row text-center">
             <div class="col-md-2"></div>
             <div class="col-md-2">
-                <button type="button" class="btn btn-primary btn-sm">Önceki</button>
+                <button type="button" v-on:click="onceki" class="btn btn-primary btn-sm">Önceki</button>
             </div>
             <div class="col-md-4">
                 <button type="button" v-on:click="cevapKaydet" class="btn btn-primary btn-sm">Kaydet</button>
             </div>
             <div class="col-md-2">
-                <button type="button" class="btn btn-primary btn-sm">Sonraki</button>
+                <button type="button" v-on:click="sonraki" class="btn btn-primary btn-sm">Sonraki</button>
             </div>
             <div class="col-md-2"></div>
         </div>
@@ -89,7 +89,6 @@ require_once("apis/Sinav/Sinav.php");
         <div class="row text-center">
             <div class="col-sm-12">
                 <button type="button" v-on:click="sinaviBitir" class="btn btn-danger btn-sm">Sınavı Bitir</button>
-                <p>{{message}}</p>
             </div>
         </div>
         
@@ -172,7 +171,7 @@ require_once("apis/Sinav/Sinav.php");
                     axios.get('apis/Sinav/SinavBitir.php')
                     .then(function (response) {
                         if(response.data.message == "FINISHED"){
-                            window.location.replace("/");
+                            window.location.replace("");
                         }
                     })
                     .catch(function (error) {
@@ -197,11 +196,28 @@ require_once("apis/Sinav/Sinav.php");
                         }
                     });
                 },
-                cevapKaydet: function(){
-                    //alert(this.aktifSoru.soruID);
-                    //alert(this.seciliDers.dersID);
-                    //alert(this.aktifSoru.kullaniciCevabi);
+                cevapButtonsGetKUllaniciCevabi(){
+                    if(this.aktifSoru.kullaniciCevabi == "A"){
+                        this.cevapla(this.cevapButtons[0]);
+                    }else if(this.aktifSoru.kullaniciCevabi == "B"){
+                        this.cevapla(this.cevapButtons[1]);
+                    }else if(this.aktifSoru.kullaniciCevabi == "C"){
+                        this.cevapla(this.cevapButtons[2]);
+                    }else if(this.aktifSoru.kullaniciCevabi == "D"){
+                        this.cevapla(this.cevapButtons[3]);
+                    }else if(this.aktifSoru.kullaniciCevabi == "E"){
+                        this.cevapla(this.cevapButtons[4]);
+                    }else{
+                        this.cevapButtonsSifirla();
+                    }
                     
+                },
+                cevapButtonsSifirla(){
+                    this.cevapButtons.forEach(function(loop_item){
+                        loop_item.sitil = "btn btn-outline-primary btn-md";
+                    });  
+                },
+                cevapKaydet: function(){
                     if(this.aktifSoru.kullaniciCevabi === "" || this.aktifSoru.kullaniciCevabi === null){
                         return;
                     }
@@ -227,13 +243,55 @@ require_once("apis/Sinav/Sinav.php");
                     //alert(this.aktifSoru.kullaniciCevabi);
                 },
                 degistir: function(){
-                    this.seciliDers.sorular[3].sitil = "btn btn-primary btn-sm";
+                    alert(this.aktifSoru.sitil);
+                    this.aktifSoru.sitil = "btn btn-success btn-sm";
+                    this.seciliDers.sorular[this.seciliDers.sonAktifSoruIndex].sitil = "btn btn-success btn-sm";
+                },
+                onceki: function(){ 
+                    //alert(this.aktifSoru.sitil);
+                    this.cevapKaydet();
+                    if(this.aktifSoru.kullaniciCevabi === null || this.aktifSoru.kullaniciCevabi === ""){
+                        this.seciliDers.sorular[this.seciliDers.sonAktifSoruIndex].sitil = "btn btn-secondary btn-sm";
+                    }
+                    else{
+                        this.seciliDers.sorular[this.seciliDers.sonAktifSoruIndex].sitil = "btn btn-success btn-sm";
+                    }
+                    if(!(this.seciliDers.sonAktifSoruIndex == 0)){
+                        this.seciliDers.sonAktifSoruIndex--;
+                        this.aktifSoru.soruID = this.seciliDers.sorular[this.seciliDers.sonAktifSoruIndex].soruID;
+                        this.aktifSoru.soruImg.src = this.seciliDers.sorular[this.seciliDers.sonAktifSoruIndex].soruIMG;
+                        this.aktifSoru.kullaniciCevabi = this.seciliDers.sorular[this.seciliDers.sonAktifSoruIndex].kullaniciCevabi;
+                        this.seciliDers.sorular[this.seciliDers.sonAktifSoruIndex].sitil = "btn btn-primary btn-sm";
+                        //cevap butonlarinin ayarlanmasi
+                        this.cevapButtonsGetKUllaniciCevabi();
+                    }
+                },
+                sonraki: function(){ 
+                    //alert(this.aktifSoru.sitil);
+                    this.cevapKaydet();
+                    this.cevapKaydet();
+                    if(this.aktifSoru.kullaniciCevabi === null || this.aktifSoru.kullaniciCevabi === ""){
+                        this.seciliDers.sorular[this.seciliDers.sonAktifSoruIndex].sitil = "btn btn-secondary btn-sm";
+                    }
+                    else{
+                        this.seciliDers.sorular[this.seciliDers.sonAktifSoruIndex].sitil = "btn btn-success btn-sm";
+                    }
+                    if(this.seciliDers.sorular.length - 2 >= this.seciliDers.sonAktifSoruIndex){
+                        this.seciliDers.sonAktifSoruIndex++;
+                        this.aktifSoru.soruID = this.seciliDers.sorular[this.seciliDers.sonAktifSoruIndex].soruID;
+                        this.aktifSoru.soruImg.src = this.seciliDers.sorular[this.seciliDers.sonAktifSoruIndex].soruIMG;
+                        this.aktifSoru.kullaniciCevabi = this.seciliDers.sorular[this.seciliDers.sonAktifSoruIndex].kullaniciCevabi;
+                        this.seciliDers.sorular[this.seciliDers.sonAktifSoruIndex].sitil = "btn btn-primary btn-sm";
+                        //cevap butonlarinin ayarlanmasi
+                        this.cevapButtonsGetKUllaniciCevabi();
+                    }
                 },
                 eventDersSecimi: function(event){
                     this.aktifSoru.soruID = this.seciliDers.sorular[this.seciliDers.sonAktifSoruIndex].soruID;
                     this.aktifSoru.soruImg.src = this.seciliDers.sorular[this.seciliDers.sonAktifSoruIndex].soruIMG;
                     this.aktifSoru.kullaniciCevabi = this.seciliDers.sorular[this.seciliDers.sonAktifSoruIndex].kullaniciCevabi;
                     this.aktifSoru.sitil = this.seciliDers.sorular[this.seciliDers.sonAktifSoruIndex].sitil;
+                    this.cevapButtonsGetKUllaniciCevabi();
                 }
             },
             
